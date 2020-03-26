@@ -32,7 +32,7 @@ extract_tag_value() {
 DEPARTMENT=$(extract_tag_value Department)
 PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
-PRINCIPAL_ID=${!PROVISIONING_PRINCIPAL_ARN##*/}
+PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
   USER_PROFILE_RESPONSE=$(curl -s "https://repo-prod.prod.sagebase.org/repo/v1/userProfile/$PRINCIPAL_ID")
