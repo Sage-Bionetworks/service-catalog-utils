@@ -32,7 +32,7 @@ extract_tag_value() {
 DEPARTMENT=$(extract_tag_value Department)
 PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
-PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}
+PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
   USER_PROFILE_RESPONSE=$(curl -s "https://repo-prod.prod.sagebase.org/repo/v1/userProfile/$PRINCIPAL_ID")
@@ -61,5 +61,6 @@ export ROOT_DISK_ID='$ROOT_DISK_ID'
 export DEPARTMENT=$DEPARTMENT
 export PROJECT=$PROJECT
 export OWNER_EMAIL=$OWNER_EMAIL
+export OIDC_USER_ID=$PRINCIPAL_ID 
 EOM
 chmod +x "$OUTPUT_FILE"
