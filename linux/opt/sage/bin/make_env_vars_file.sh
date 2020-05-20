@@ -3,7 +3,7 @@
 # Creates a file which sets environment variables. These are common variables
 # used by other init scripts that set up an AWS EC2 Linux instance.
 
-set -ex
+# set -ex
 
 usage() {
   msg="To run create_env_vars_file.sh, ensure that AWS_REGION, STACK_ID, "
@@ -36,7 +36,7 @@ PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derive
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
   USER_PROFILE_RESPONSE=$(curl -s "https://repo-prod.prod.sagebase.org/repo/v1/userProfile/$PRINCIPAL_ID")
-  SYNAPSE_USERNAME=$(echo "$USER_PROFILE_RESPONSE" | jq '.userName')
+  SYNAPSE_USERNAME=$(echo "$USER_PROFILE_RESPONSE" | jq -r '.userName')
   if [[ -z "$SYNAPSE_USERNAME" || "$SYNAPSE_USERNAME" == "null" ]]; then
     echo "Could not extract user name from Synapse user profile response: $USER_PROFILE_RESPONSE" >&2
     exit 1
@@ -53,14 +53,14 @@ RESOURCE_ID=${STACK_ID##*/}
 PRODUCTS=$(/usr/bin/aws --region $AWS_REGION \
   servicecatalog search-provisioned-products \
   --filters SearchQuery=$RESOURCE_ID )
-NUM_PRODUCTS=$(echo $PRODUCTS | jq '.TotalResultsCount')
-if ["$NUM_PRODUCTS" -ne 1]
+NUM_PRODUCTS=$(echo $PRODUCTS | jq -r '.TotalResultsCount')
+if [ "$NUM_PRODUCTS" -ne 1 ]
 then
   echo "ERROR: there are $NUM_PRODUCTS provisioned products, cannot isolate a name for tagging."
   exit 1
 fi
-PRODUCT_NAME=$(echo $PRODUCTS | jq '.ProvisionedProducts[0].Name')
-PRODUCT_ACCESS_APPROVED_ROLEID=$(echo $PRODUCTS | jq '.ProvisionedProducts[0].AccessApprovedRoleId')
+PRODUCT_NAME=$(echo $PRODUCTS | jq -r '.ProvisionedProducts[0].Name')
+PRODUCT_ACCESS_APPROVED_ROLEID=$(echo $PRODUCTS | jq -r '.ProvisionedProducts[0].AccessApprovedRoleId')
 
 mkdir -p /opt/sage/bin
 OUTPUT_FILE=/opt/sage/bin/instance_env_vars.sh
@@ -70,7 +70,7 @@ export AWS_REGION=$AWS_REGION
 export STACK_NAME=$STACK_NAME
 export STACK_ID=$STACK_ID
 export EC2_INSTANCE_ID=$EC2_INSTANCE_ID
-export ROOT_DISK_ID='$ROOT_DISK_ID'
+export ROOT_DISK_ID=$ROOT_DISK_ID
 export DEPARTMENT=$DEPARTMENT
 export PROJECT=$PROJECT
 export OWNER_EMAIL=$OWNER_EMAIL
