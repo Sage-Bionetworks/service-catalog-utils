@@ -1,6 +1,6 @@
 #! /bin/bash
 
-set -xe
+# set -xe
 
 source /opt/sage/bin/instance_env_vars.sh
 
