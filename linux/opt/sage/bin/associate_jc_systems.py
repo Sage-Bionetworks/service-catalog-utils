@@ -4,7 +4,7 @@ import json
 import os
 import urllib.request
 
-SYNAPSE_USER_ID = os.environ["SYNAPSE_USER_ID"]
+OIDC_USER_ID = os.environ["OIDC_USER_ID"]
 JC_SERVICE_API_KEY = os.environ["JC_SERVICE_API_KEY"]
 JC_AGENT_CONFIG_FILE = "/opt/jc/jcagent.conf"
 JC_SYSTEM_USER_ENDPOINT = "https://console.jumpcloud.com/api/systemusers?fields=attributes"
@@ -57,7 +57,7 @@ def get_jc_user_id(users):
     for user in users:
         attributes = user['attributes']
         for attribute in attributes:
-            if attribute['name'] == "SynapseUserId" and attribute['value'] == SYNAPSE_USER_ID:
+            if attribute['name'] == "SynapseUserId" and attribute['value'] == OIDC_USER_ID:
                 user_id = user['_id']
 
     return user_id
