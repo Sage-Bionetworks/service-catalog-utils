@@ -32,6 +32,7 @@ extract_tag_value() {
 DEPARTMENT=$(extract_tag_value Department)
 PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
+ACCESS_APPROVED_ROLEID=$(extract_tag_value AccessApprovedRoleId)
 PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
@@ -60,7 +61,6 @@ then
   exit 1
 fi
 PRODUCT_NAME=$(echo $PRODUCTS | jq -r '.ProvisionedProducts[0].Name')
-PRODUCT_ACCESS_APPROVED_ROLEID=$(echo $PRODUCTS | jq -r '.ProvisionedProducts[0].AccessApprovedRoleId')
 
 mkdir -p /opt/sage/bin
 OUTPUT_FILE=/opt/sage/bin/instance_env_vars.sh
@@ -73,10 +73,9 @@ export EC2_INSTANCE_ID=$EC2_INSTANCE_ID
 export ROOT_DISK_ID=$ROOT_DISK_ID
 export DEPARTMENT=$DEPARTMENT
 export PROJECT=$PROJECT
+export ACCESS_APPROVED_ROLEID=$ACCESS_APPROVED_ROLEID
 export OWNER_EMAIL=$OWNER_EMAIL
 export OIDC_USER_ID=$PRINCIPAL_ID 
 export OIDC_USERNAME=$SYNAPSE_USERNAME
 export PRODUCT_NAME=$PRODUCT_NAME
-export PRODUCT_ACCESS_APPROVED_ROLEID=$PRODUCT_ACCESS_APPROVED_ROLEID
 EOM
-chmod +x "$OUTPUT_FILE"
