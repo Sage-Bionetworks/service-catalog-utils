@@ -32,8 +32,10 @@ extract_tag_value() {
 DEPARTMENT=$(extract_tag_value Department)
 PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
-ACCESS_APPROVED_ROLEID=$(extract_tag_value AccessApprovedRoleId)
 PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
+ASSUMED_ROLE_NAME=$(cut -d'/' -f2 <<< ${PROVISIONING_PRINCIPAL_ARN}) # the SC end user assumed role name
+ACCESS_APPROVED_ROLEID=$(/usr/bin/aws --region $AWS_REGION \     # the SC end user assumed role ID
+  iam get-role --query Role.RoleId --out text --role-name ${ASSUMED_ROLE_NAME})
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
   USER_PROFILE_RESPONSE=$(curl -s "https://repo-prod.prod.sagebase.org/repo/v1/userProfile/$PRINCIPAL_ID")
@@ -73,6 +75,7 @@ export EC2_INSTANCE_ID=$EC2_INSTANCE_ID
 export ROOT_DISK_ID=$ROOT_DISK_ID
 export DEPARTMENT=$DEPARTMENT
 export PROJECT=$PROJECT
+export ASSUMED_ROLE_NAME=$ASSUMED_ROLE_NAME
 export ACCESS_APPROVED_ROLEID=$ACCESS_APPROVED_ROLEID
 export OWNER_EMAIL=$OWNER_EMAIL
 export OIDC_USER_ID=$PRINCIPAL_ID 
