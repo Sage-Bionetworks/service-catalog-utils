@@ -34,7 +34,8 @@ PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
 PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
 ASSUMED_ROLE_NAME=$(cut -d'/' -f2 <<< ${PROVISIONING_PRINCIPAL_ARN}) # the SC end user assumed role name
-ACCESS_APPROVED_ROLEID=$(/usr/bin/aws --region $AWS_REGION \     # the SC end user assumed role ID
+# the SC end user assumed role ID
+ACCESS_APPROVED_ROLEID=$(/usr/bin/aws --region $AWS_REGION \
   iam get-role --query Role.RoleId --out text --role-name ${ASSUMED_ROLE_NAME})
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
