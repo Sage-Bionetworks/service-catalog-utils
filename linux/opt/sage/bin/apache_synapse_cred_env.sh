@@ -4,18 +4,20 @@
 # to store Synapse user token into SSM Parameter Store
 
 # Requires the following environment variables to be defined:
-# SYNAPSE_TOKEN_SSM_PARAMETER_NAME - name of SSM Parameter that will be used to
-#                                    retrieve Synapse user tokens
-# KMS_KEY_ALIAS - Name of KMS key alias used to encrypt the SSM Parameter. 
-#                 This value should be in the format of 'alias/...'
+# SERVICE_CATALOG_PREFIX - prefix to use for service catalog synapse cred name
+# SSM_PARAMETER_SUFFIX - suffix for the SSM Parameter name
 
 
 # In case I am bad at programming
 set -e; set -u; set -o pipefail
 
+EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id)
+
+SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME="/$SERVICE_CATALOG_PREFIX/$EC2_INSTANCE_ID/$SSM_PARAMETER_SUFFIX"
+KMS_KEY_ALIAS="alias/$SERVICE_CATALOG_PREFIX/$EC2_INSTANCE_ID"
 
 # set envirronment variable for Apache
-echo "export SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME=$SYNAPSE_TOKEN_SSM_PARAMETER_NAME" >> /etc/apache2/envvars
+echo "export SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME=$SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME" >> /etc/apache2/envvars
 echo "export KMS_KEY_ALIAS=$KMS_KEY_ALIAS" >> /etc/apache2/envvars
 
 systemctl restart apache2
