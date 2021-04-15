@@ -10,7 +10,7 @@
 # In case I am bad at programming
 set -e; set -u; set -o pipefail
 
-AWS_REGION=$(/usr/bin/curl -s http://169.254.169.254/latest/dynamic/instance-identity/document)
+AWS_REGION=$(/usr/bin/curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | /usr/bin/jq -r .region)
 EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
 SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME="/$SERVICE_CATALOG_PREFIX/$EC2_INSTANCE_ID/$SSM_PARAMETER_SUFFIX"
