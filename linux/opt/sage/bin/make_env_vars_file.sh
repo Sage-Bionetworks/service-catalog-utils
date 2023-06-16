@@ -29,8 +29,6 @@ extract_tag_value() {
   echo "$EC2_INSTANCE_TAGS" | jq -j --arg KEYNAME "$1" '.Tags[] | select(.Key == $KEYNAME).Value '
 }
 
-DEPARTMENT=$(extract_tag_value Department)
-PROJECT=$(extract_tag_value Project)
 PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningPrincipalArn')
 PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
 ASSUMED_ROLE_NAME=$(cut -d'/' -f2 <<< ${PROVISIONING_PRINCIPAL_ARN}) # the SC end user assumed role name
@@ -74,8 +72,6 @@ export STACK_NAME=$STACK_NAME
 export STACK_ID=$STACK_ID
 export EC2_INSTANCE_ID=$EC2_INSTANCE_ID
 export ROOT_DISK_ID=$ROOT_DISK_ID
-export DEPARTMENT=$DEPARTMENT
-export PROJECT=$PROJECT
 export ASSUMED_ROLE_NAME=$ASSUMED_ROLE_NAME
 export ACCESS_APPROVED_ROLEID=$ACCESS_APPROVED_ROLEID
 export OWNER_EMAIL=$OWNER_EMAIL
