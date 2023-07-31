@@ -6,7 +6,7 @@
 # We did it this way because the Apache module we use for rewrite did not support regular expressions.
 
 EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id)
-sed -i "s/^.*<LocationMatch.*\/.*\/>.*$/<LocationMatch \/$EC2_INSTANCE_ID\/>/g" /etc/apache2/sites-available/proxy.conf
+sed -i "s/^.*<Location.*\/.*\/>.*$/<Location \/$EC2_INSTANCE_ID\ />/g" /etc/apache2/sites-available/proxy.conf
 
 # oh boy regular expresions are FUN. I wish everything was written in regular expresssions...
 # (RewriteRule\s\/)  = finding "RewriteRule" followed by a space and forward slash - set as regex group_1
