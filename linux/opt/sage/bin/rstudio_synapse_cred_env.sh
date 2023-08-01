@@ -15,6 +15,11 @@ EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/insta
 
 SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME="/$SERVICE_CATALOG_PREFIX/$EC2_INSTANCE_ID/$SSM_PARAMETER_SUFFIX"
 
+# create directory if does not exist
+if [ ! -d "/etc/R" ]; then
+  mkdir -p /etc/R
+fi
+
 # set environment variable for R
 echo "SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME=$SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME" >> /etc/R/Renviron.site
 echo "AWS_DEFAULT_REGION=$AWS_REGION" >> /etc/R/Renviron.site
