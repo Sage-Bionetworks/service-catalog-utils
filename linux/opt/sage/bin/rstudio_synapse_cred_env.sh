@@ -10,8 +10,9 @@
 # In case I am bad at programming
 set -e; set -u; set -o pipefail
 
-AWS_REGION=$(/usr/bin/curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | /usr/bin/jq -r .region)
-EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id)
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+EC2_INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+AWS_REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/dynamic/instance-identity/document | jq -r .region)
 
 SYNAPSE_TOKEN_AWS_SSM_PARAMETER_NAME="/$SERVICE_CATALOG_PREFIX/$EC2_INSTANCE_ID/$SSM_PARAMETER_SUFFIX"
 

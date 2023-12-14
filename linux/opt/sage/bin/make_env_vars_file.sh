@@ -16,8 +16,9 @@ if [[ -z "$AWS_REGION" || -z "$STACK_ID" || -z "$STACK_NAME" ]]; then
   exit 1
 fi
 
-EC2_INSTANCE_ID=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/instance-id)
-ROOT_DISK_ID=$(/usr/local/bin/aws ec2 describe-volumes \
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+EC2_INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
+ROOT_DISK_ID=$(aws ec2 describe-volumes \
   --region "$AWS_REGION" \
   --filters Name=attachment.instance-id,Values="$EC2_INSTANCE_ID" \
   --query Volumes[].VolumeId --out text)
@@ -33,7 +34,7 @@ PROVISIONING_PRINCIPAL_ARN=$(extract_tag_value 'aws:servicecatalog:provisioningP
 PRINCIPAL_ID=${PROVISIONING_PRINCIPAL_ARN##*/}  #Immutable Synapse userid derived from assume-role session name
 ASSUMED_ROLE_NAME=$(cut -d'/' -f2 <<< ${PROVISIONING_PRINCIPAL_ARN}) # the SC end user assumed role name
 # the SC end user assumed role ID
-ACCESS_APPROVED_ROLEID=$(/usr/local/bin/aws --region $AWS_REGION \
+ACCESS_APPROVED_ROLEID=$(aws --region $AWS_REGION \
   iam get-role --query Role.RoleId --out text --role-name ${ASSUMED_ROLE_NAME})
 
 if [[ "$PRINCIPAL_ID" =~ [[:digit:]] ]]; then
@@ -52,7 +53,7 @@ else
 fi
 
 RESOURCE_ID=${STACK_ID##*/}
-PRODUCTS=$(/usr/local/bin/aws --region $AWS_REGION \
+PRODUCTS=$(aws --region $AWS_REGION \
   servicecatalog search-provisioned-products \
   --filters SearchQuery=$RESOURCE_ID )
 NUM_PRODUCTS=$(echo $PRODUCTS | jq -r '.TotalResultsCount')
